@@ -78,7 +78,12 @@ void* Tensor::mutable_data(const platform::Place& place,
       VLOG(2) << "The running device is GPU";
       try {
         VLOG(2) << "GPU memory is trying allocation with size " << size;
-        holder_ = memory::AllocShared(place, size);
+        if (size <= 8) {
+          holder_ = memory::AllocShared(place, size);
+        } else {
+          VLOG(2) << "size > 8, CPU allocation is being used";
+          holder_ = memory::AllocShared(platform::CPUPlace(), size);
+        }
       } catch (...) {
         VLOG(2) << "GPU allocation failed, CPU allocation is being used";
         holder_ = memory::AllocShared(platform::CPUPlace(), size);
