@@ -68,19 +68,19 @@ void* Tensor::mutable_data(const platform::Place& place,
             requested_size, size));
     size = requested_size;
   }
-  VLOG(2) << "Tensor MutableData is used";
+  VLOG(2) << "Tensor MutableData is being invoked";
   /* some versions of boost::variant don't have operator!= */
   if (holder_ == nullptr || !(holder_->place() == place) ||
       holder_->size() < size + offset_) {
     // Reset holder first before re-allocate to save memory
     holder_.reset();
     if (is_gpu_place(place)) {
-      VLOG(2) << "is GPU";
+      VLOG(2) << "The running device is GPU";
       try {
-        VLOG(2) << "GPU alloc";
+        VLOG(2) << "GPU memory is trying allocation";
         holder_ = memory::AllocShared(place, size);
       } catch (...) {
-        VLOG(2) << "CPU alloc";
+        VLOG(2) << "GPU allocation failed, CPU allocation is being used";
         holder_ = memory::AllocShared(platform::CPUPlace(), size);
       }
     } else {
