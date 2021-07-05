@@ -81,11 +81,11 @@ void* Tensor::mutable_data(const platform::Place& place,
         if (size <= 8) {
           holder_ = memory::AllocShared(place, size);
         } else {
-          VLOG(2) << "size > 8, CPU allocation is being used";
+          VLOG(2) << "size > 8, GPU pinned allocation is being used";
           holder_ = memory::AllocShared(platform::CUDAPinnedPlace(), size);
         }
       } catch (...) {
-        VLOG(2) << "GPU allocation failed, CPU allocation is being used";
+        VLOG(2) << "GPU allocation failed, GPU pinned allocation is being used";
         holder_ = memory::AllocShared(platform::CUDAPinnedPlace(), size);
       }
     } else {
