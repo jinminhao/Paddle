@@ -93,6 +93,7 @@ Allocation *AutoGrowthBestFitAllocator::AllocateImpl(size_t size) {
     block_it = --(blocks.end());
     VLOG(2) << "Not found and reallocate " << realloc_size << ", and remaining "
             << remaining_size;
+    VLOG(2) << "Check here";
   }
   return new BlockAllocation(block_it);
 }
