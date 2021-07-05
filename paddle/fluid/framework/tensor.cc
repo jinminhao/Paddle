@@ -73,7 +73,15 @@ void* Tensor::mutable_data(const platform::Place& place,
       holder_->size() < size + offset_) {
     // Reset holder first before re-allocate to save memory
     holder_.reset();
-    holder_ = memory::AllocShared(place, size);
+    if (is_gpu_place(place)) {
+      try {
+        holder_ = memory::AllocShared(place, size);
+      } catch (...) {
+        holder_ = memory::AllocShared(platform::CPUPlace(), size);
+      }
+    } else {
+      holder_ = memory::AllocShared(place, size);
+    }
     offset_ = 0;
   }
   return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(holder_->ptr()) +
