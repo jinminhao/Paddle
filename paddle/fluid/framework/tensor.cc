@@ -71,28 +71,26 @@ void* Tensor::mutable_data(const platform::Place& place,
     size = requested_size;
   }
   VLOG(1) << "Tensor MutableData is being invoked";
-  if (holder_ == nullptr || is_cuda_pinned_place(holder_->place())) {
-    /* some versions of boost::variant don't have operator!= */
-    if (holder_ == nullptr || !(holder_->place() == place) ||
-        holder_->size() < size + offset_) {
-      // Reset holder first before re-allocate to save memory
-      holder_.reset();
-      if (is_gpu_place(place)) {
-        size_t available_memory = platform::GpuAvailableMemToAlloc();
-        VLOG(1) << "The running device is GPU with available memory " << available_memory;
-        try {
-          VLOG(1) << "GPU memory is trying allocation with size " << size;
-          holder_ = memory::AllocShared(place, size);
-        } catch (...) {
-          VLOG(1) << "GPU allocation failed, GPU pinned allocation is being used";
-          auto modified_place = platform::CUDAPinnedPlace();
-          holder_ = memory::AllocShared(modified_place, size);
-        }
-      } else {
+  /* some versions of boost::variant don't have operator!= */
+  if (holder_ == nullptr || !(holder_->place() == place) ||
+      holder_->size() < size + offset_) {
+    // Reset holder first before re-allocate to save memory
+    holder_.reset();
+    if (is_gpu_place(place)) {
+      size_t available_memory = platform::GpuAvailableMemToAlloc();
+      VLOG(1) << "The running device is GPU with available memory " << available_memory;
+      try {
+        VLOG(1) << "GPU memory is trying allocation with size " << size;
         holder_ = memory::AllocShared(place, size);
+      } catch (...) {
+        VLOG(1) << "GPU allocation failed, GPU pinned allocation is being used";
+        auto modified_place = platform::CUDAPinnedPlace();
+        holder_ = memory::AllocShared(modified_place, size);
       }
-      offset_ = 0;
+    } else {
+      holder_ = memory::AllocShared(place, size);
     }
+    offset_ = 0;
   }
   return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(holder_->ptr()) +
                                  offset_);
