@@ -84,7 +84,9 @@ void* Tensor::mutable_data(const platform::Place& place,
         holder_ = memory::AllocShared(place, size);
       } catch (...) {
         VLOG(1) << "GPU allocation failed, GPU pinned allocation is being used";
-        holder_ = memory::AllocShared(platform::CUDAPinnedPlace(), size);
+        auto modified_place = platform::CUDAPinnedPlace();
+        holder_ = memory::AllocShared(modified_place, size);
+        holder_->place_ = modified_place;
       }
     } else {
       holder_ = memory::AllocShared(place, size);
@@ -103,7 +105,7 @@ void* Tensor::mutable_data(const platform::Place& place,
 }
 
 Tensor& Tensor::ShareDataWith(const Tensor& src) {
-  src.check_memory_size();
+  src.check_memory_size();  
   *this = src;
   return *this;
 }
