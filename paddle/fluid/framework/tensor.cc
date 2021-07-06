@@ -50,7 +50,7 @@ size_t Tensor::memory_size() const {
   return holder_ == nullptr ? 0UL : holder_->size() - offset_;
 }
 
-void* Tensor::mutable_data(platform::Place& place,
+void* Tensor::mutable_data(const platform::Place& place,
                            proto::VarType::Type type, size_t requested_size) {
   type_ = type;
   PADDLE_ENFORCE_GE(
@@ -84,8 +84,8 @@ void* Tensor::mutable_data(platform::Place& place,
         holder_ = memory::AllocShared(place, size);
       } catch (...) {
         VLOG(1) << "GPU allocation failed, GPU pinned allocation is being used";
-        place = platform::CUDAPinnedPlace();
-        holder_ = memory::AllocShared(place, size);
+        // auto modified_place = platform::CUDAPinnedPlace();
+        // holder_ = memory::AllocShared(modified_place, size);
       }
     } else {
       holder_ = memory::AllocShared(place, size);
@@ -96,7 +96,7 @@ void* Tensor::mutable_data(platform::Place& place,
                                  offset_);
 }
 
-void* Tensor::mutable_data(platform::Place& place,
+void* Tensor::mutable_data(const platform::Place& place,
                            size_t requested_size) {
   PADDLE_ENFORCE_NOT_NULL(this->holder_, platform::errors::PreconditionNotMet(
                                              "The tensor is not initialized."));
