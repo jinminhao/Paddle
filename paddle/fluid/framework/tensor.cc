@@ -72,7 +72,7 @@ void* Tensor::mutable_data(const platform::Place& place,
   }
   VLOG(1) << "Tensor MutableData is being invoked";
   /* some versions of boost::variant don't have operator!= */
-  if (holder_ == nullptr || !(holder_->place() == place) ||
+  if (holder_ == nullptr || (!(holder_->place() == place) && !is_cuda_pinned_place(holder_->place())) ||
       holder_->size() < size + offset_) {
     // Reset holder first before re-allocate to save memory
     holder_.reset();
