@@ -76,7 +76,7 @@ void* Tensor::mutable_data(const platform::Place& place,
       holder_->size() < size + offset_) {
     // Reset holder first before re-allocate to save memory
     holder_.reset();
-    if (is_gpu_place(place)) {
+    if (is_gpu_place(place) && holder_ != nullptr && !is_cuda_pinned_place(place)) {
       size_t available_memory = platform::GpuAvailableMemToAlloc();
       VLOG(1) << "The running device is GPU with available memory " << available_memory;
       try {
