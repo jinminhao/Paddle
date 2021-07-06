@@ -75,7 +75,8 @@ void* Tensor::mutable_data(const platform::Place& place,
     // Reset holder first before re-allocate to save memory
     holder_.reset();
     if (is_gpu_place(place)) {
-      VLOG(1) << "The running device is GPU";
+      size_t available_memory = platform::GpuAvailableMemToAlloc();
+      VLOG(1) << "The running device is GPU with available memory " << available_memory;
       try {
         VLOG(1) << "GPU memory is trying allocation with size " << size;
         holder_ = memory::AllocShared(place, size);
