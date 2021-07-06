@@ -68,19 +68,19 @@ void* Tensor::mutable_data(const platform::Place& place,
             requested_size, size));
     size = requested_size;
   }
-  VLOG(0) << "Tensor MutableData is being invoked";
+  VLOG(1) << "Tensor MutableData is being invoked";
   /* some versions of boost::variant don't have operator!= */
   if (holder_ == nullptr || !(holder_->place() == place) ||
       holder_->size() < size + offset_) {
     // Reset holder first before re-allocate to save memory
     holder_.reset();
     if (is_gpu_place(place)) {
-      VLOG(0) << "The running device is GPU";
+      VLOG(1) << "The running device is GPU";
       try {
-        VLOG(0) << "GPU memory is trying allocation with size " << size;
+        VLOG(1) << "GPU memory is trying allocation with size " << size;
         holder_ = memory::AllocShared(place, size);
       } catch (...) {
-        VLOG(0) << "GPU allocation failed, GPU pinned allocation is being used";
+        VLOG(1) << "GPU allocation failed, GPU pinned allocation is being used";
         holder_ = memory::AllocShared(platform::CUDAPinnedPlace(), size);
       }
     } else {
