@@ -78,10 +78,10 @@ void* Tensor::mutable_data(const platform::Place& place,
     if (is_gpu_place(place)) {
       size_t available_memory = platform::GpuAvailableMemToAlloc();
       VLOG(1) << "The running device is GPU with available memory " << available_memory;
-      try {
+      if (size < available_memory - 1000) {
         VLOG(1) << "GPU memory is trying allocation with size " << size;
         holder_ = memory::AllocShared(place, size);
-      } catch (...) {
+      } else {
         VLOG(1) << "GPU allocation failed, GPU pinned allocation is being used";
         auto modified_place = platform::CUDAPinnedPlace();
         holder_ = memory::AllocShared(modified_place, size);
